@@ -10,6 +10,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.ccd.AppInsights;
 import uk.gov.hmcts.ccd.ApplicationParams;
 import uk.gov.hmcts.ccd.data.SecurityUtils;
 import uk.gov.hmcts.ccd.domain.model.callbacks.CallbackRequest;
@@ -21,10 +22,15 @@ import uk.gov.hmcts.ccd.endpoint.exceptions.CallbackException;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
+import static uk.gov.hmcts.ccd.AppInsights.CALLBACK;
 
 @Named
 @Singleton
@@ -34,12 +40,16 @@ public class CallbackService {
     private final SecurityUtils securityUtils;
     private final RestTemplate restTemplate;
     private final List<Integer> defaultRetries;
+    private final AppInsights appInsights;
 
     public CallbackService(final SecurityUtils securityUtils,
-                           RestTemplate restTemplate, final ApplicationParams applicationParams) {
+                           RestTemplate restTemplate,
+                           final ApplicationParams applicationParams,
+                           final AppInsights appInsights) {
         this.securityUtils = securityUtils;
         this.restTemplate = restTemplate;
         this.defaultRetries = applicationParams.getCallbackRetries();
+        this.appInsights = appInsights;
     }
 
     private Integer secondsToMilliseconds(final Integer seconds) {
@@ -75,7 +85,7 @@ public class CallbackService {
                 return Optional.of(responseEntity.get().getBody());
             }
         }
-        throw new CallbackException("Unsuccessful callback to " + url);
+        throw new CallbackException(getErrorMessage(url, caseEvent.getId(), caseDetails.getReference()));
     }
 
     public <T> ResponseEntity<T> send(final String url,
@@ -95,7 +105,7 @@ public class CallbackService {
             }
         }
         // Sent so many requests and still got nothing, throw exception here
-        throw new CallbackException("Unsuccessful callback to " + url);
+        throw new CallbackException(getErrorMessage(url, caseEvent.getId(), caseDetails.getReference()));
     }
 
     private <T> Optional<ResponseEntity<T>> sendRequest(final String url,
@@ -120,8 +130,15 @@ public class CallbackService {
             requestFactory.setReadTimeout(secondsToMilliseconds(timeout));
             requestFactory.setConnectTimeout(secondsToMilliseconds(timeout));
             restTemplate.setRequestFactory(requestFactory);
-            return Optional.ofNullable(
-                restTemplate.exchange(url, HttpMethod.POST, requestEntity, clazz));
+            final Instant start = Instant.now();
+            Optional<ResponseEntity<T>> response = Optional.ofNullable(restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                requestEntity, clazz));
+            final Duration duration = Duration.between(start, Instant.now());
+            LOG.debug("CallbackService sendRequest called for {}, finished in {}", url, duration.toMillis());
+            appInsights.trackDependency(url, CALLBACK, duration.toMillis(), response.isPresent());
+            return response;
         } catch (RestClientException e) {
             LOG.info("Unable to connect to callback service {} because of {} {}",
                      url,
@@ -140,5 +157,20 @@ public class CallbackService {
                 .withErrors(callbackResponse.getErrors())
                 .withWarnings(callbackResponse.getWarnings());
         }
+    }
+
+    private String getErrorMessage (String url, String eventId, Long caseReference) {
+        StringBuilder msg = new StringBuilder("An error occurred while calling \"");
+        msg.append(url)
+            .append("\" for the callback on event \"")
+            .append(eventId);
+        if (caseReference != null) {
+            msg.append("\" on case \"")
+                .append(caseReference);
+        }
+        msg.append("\" at ");
+        msg.append(LocalDateTime.now(ZoneOffset.UTC));
+        msg.append(" - please contact the support team with this error message\"");
+        return msg.toString();
     }
 }

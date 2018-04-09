@@ -16,6 +16,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.ccd.AppInsights;
 import uk.gov.hmcts.ccd.ApplicationParams;
 import uk.gov.hmcts.ccd.data.SecurityUtils;
 import uk.gov.hmcts.ccd.domain.model.callbacks.CallbackResponse;
@@ -30,6 +31,7 @@ import java.util.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -234,7 +236,7 @@ public class CallbackServiceTest {
 
         // Builds a new callback service to avoid wiremock exception to get in the way
         final CallbackService underTest = new CallbackService(Mockito.mock(SecurityUtils.class), restTemplate,
-            applicationParams);
+            applicationParams, Mockito.mock(AppInsights.class));
         final CaseDetails caseDetails = new CaseDetails();
         final CaseEvent caseEvent = new CaseEvent();
         caseEvent.setId("TEST-EVENT");
@@ -242,7 +244,7 @@ public class CallbackServiceTest {
         try {
             underTest.send(testUrl, null, caseEvent, null, caseDetails, String.class);
         } catch (CallbackException ex) {
-            assertThat(ex.getMessage(), is("Unsuccessful callback to " + testUrl));
+            assertThat(ex.getMessage(), startsWith("An error occurred while calling \"" + testUrl));
             throw ex;
         }
     }

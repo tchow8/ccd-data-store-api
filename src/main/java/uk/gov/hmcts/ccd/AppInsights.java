@@ -14,6 +14,7 @@ public class AppInsights extends AbstractAppInsights {
     private static final String MODULE = "CASE_DATA";
     public static final String CASE_DEFINITION = "CASE_DEFINITION";
     public static final String DOC_MANAGEMENT = "DOCUMENT_MANAGEMENT";
+    public static final String CALLBACK = "CALLBACK";
 
     @Autowired
     public AppInsights(TelemetryClient telemetry) {
