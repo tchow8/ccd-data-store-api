@@ -1,6 +1,9 @@
 variable "product" {
-  type    = "string"
-  default = "ccd-data-store-api"
+  type = "string"
+}
+
+variable "component" {
+  type = "string"
 }
 
 variable "location" {
@@ -51,4 +54,12 @@ variable "s2s_url" {
 variable "authorised-services" {
   type    = "string"
   default = "ccd_data,ccd_gw,ccd_ps,probate_backend,divorce_ccd_submission,sscs,cmc,cmc_claim_store"
+}
+
+variable "document_management_valid_domain" {
+  default = "https://api-gateway.test.dm.reform.hmcts.net"
+}
+
+variable "default_print_url" {
+  default = "https://return-case-doc-ccd.nonprod.platform.hmcts.net/jurisdictions/:jid/case-types/:ctid/cases/:cid"
 }
