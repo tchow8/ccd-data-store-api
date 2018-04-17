@@ -85,7 +85,7 @@ public class CallbackService {
                 return Optional.of(responseEntity.get().getBody());
             }
         }
-        throw new CallbackException(getErrorMessage(url, caseEvent.getId(), caseDetails.getReference()));
+        throw new CallbackException(getErrorMessage(url, caseEvent.getName(), caseDetails.getReference()));
     }
 
     public <T> ResponseEntity<T> send(final String url,
@@ -105,7 +105,7 @@ public class CallbackService {
             }
         }
         // Sent so many requests and still got nothing, throw exception here
-        throw new CallbackException(getErrorMessage(url, caseEvent.getId(), caseDetails.getReference()));
+        throw new CallbackException(getErrorMessage(url, caseEvent.getName(), caseDetails.getReference()));
     }
 
     private <T> Optional<ResponseEntity<T>> sendRequest(final String url,
@@ -159,11 +159,11 @@ public class CallbackService {
         }
     }
 
-    private String getErrorMessage (String url, String eventId, Long caseReference) {
+    private String getErrorMessage (String url, String eventName, Long caseReference) {
         StringBuilder msg = new StringBuilder("An error occurred while calling \"");
         msg.append(url)
             .append("\" for the callback on event \"")
-            .append(eventId);
+            .append(eventName);
         if (caseReference != null) {
             msg.append("\" on case \"")
                 .append(caseReference);
