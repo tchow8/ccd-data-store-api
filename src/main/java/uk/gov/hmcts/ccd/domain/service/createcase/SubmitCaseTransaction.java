@@ -21,13 +21,15 @@ import uk.gov.hmcts.ccd.domain.service.common.UIDService;
 import uk.gov.hmcts.ccd.domain.service.stdapi.CallbackInvoker;
 import uk.gov.hmcts.ccd.endpoint.exceptions.CaseConcurrencyException;
 
-import javax.inject.Inject;
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 @Service
 class SubmitCaseTransaction {
+
+    private static final String DEFAULT_REASON_FOR_ACCESS = "creator";
 
     private final CaseDetailsRepository caseDetailsRepository;
     private final CaseAuditEventRepository caseAuditEventRepository;
@@ -80,7 +82,7 @@ class SubmitCaseTransaction {
 
         final CaseDetails savedCaseDetails = saveAuditEventForCaseDetails(event, caseType, idamUser, eventTrigger, newCaseDetails);
 
-        caseUserRepository.grantAccess(savedCaseDetails.getId(), idamUser.getId());
+        caseUserRepository.grantAccess(savedCaseDetails.getId(), idamUser.getId(), DEFAULT_REASON_FOR_ACCESS);
 
         return savedCaseDetails;
     }

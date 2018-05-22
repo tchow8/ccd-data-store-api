@@ -10,6 +10,7 @@ import org.mockito.MockitoAnnotations;
 import uk.gov.hmcts.ccd.data.caseaccess.CaseUserRepository;
 import uk.gov.hmcts.ccd.data.casedetails.CaseDetailsRepository;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseDetails;
+import uk.gov.hmcts.ccd.domain.model.std.CaseAccess;
 import uk.gov.hmcts.ccd.domain.service.getcase.CaseNotFoundException;
 
 import java.util.Optional;
@@ -26,6 +27,8 @@ class CaseAccessOperationTest {
     private static final String USER_ID = "123";
     private static final Long CASE_ID = 456L;
     private static final Long CASE_NOT_FOUND = 9999999999999999L;
+
+    private static final CaseAccess CASE_ACCESS = new CaseAccess(USER_ID, "executor");
 
     @Mock
     private CaseDetailsRepository caseDetailsRepository;
@@ -51,11 +54,11 @@ class CaseAccessOperationTest {
         @Test
         @DisplayName("should grant access to user")
         void shouldGrantAccess() {
-            caseAccessOperation.grantAccess(JURISDICTION, CASE_REFERENCE.toString(), USER_ID);
+            caseAccessOperation.grantAccess(JURISDICTION, CASE_REFERENCE.toString(), CASE_ACCESS);
 
             assertAll(
                 () -> verify(caseDetailsRepository).findByReference(JURISDICTION, CASE_REFERENCE),
-                () -> verify(caseUserRepository).grantAccess(CASE_ID, USER_ID)
+                () -> verify(caseUserRepository).grantAccess(CASE_ID, USER_ID, CASE_ACCESS.getReasonForAccess())
             );
         }
 
@@ -64,10 +67,10 @@ class CaseAccessOperationTest {
         void shouldThrowNotFound() {
             assertAll(
                 () -> assertThrows(CaseNotFoundException.class, () -> {
-                    caseAccessOperation.grantAccess(JURISDICTION, CASE_NOT_FOUND.toString(), USER_ID);
+                    caseAccessOperation.grantAccess(JURISDICTION, CASE_NOT_FOUND.toString(), CASE_ACCESS);
                 }),
                 () -> verify(caseDetailsRepository).findByReference(JURISDICTION, CASE_NOT_FOUND),
-                () -> verify(caseUserRepository, never()).grantAccess(CASE_ID, USER_ID)
+                () -> verify(caseUserRepository, never()).grantAccess(CASE_ID, USER_ID, CASE_ACCESS.getReasonForAccess())
             );
         }
 
@@ -76,10 +79,11 @@ class CaseAccessOperationTest {
         void shouldHandleWrongJurisdiction() {
             assertAll(
                 () -> assertThrows(CaseNotFoundException.class, () -> {
-                    caseAccessOperation.grantAccess(WRONG_JURISDICTION, CASE_REFERENCE.toString(), USER_ID);
+                    caseAccessOperation.grantAccess(WRONG_JURISDICTION, CASE_REFERENCE.toString(), CASE_ACCESS);
                 }),
                 () -> verify(caseDetailsRepository).findByReference(WRONG_JURISDICTION, CASE_REFERENCE),
-                () -> verify(caseUserRepository, never()).grantAccess(CASE_ID, USER_ID)
+                () -> verify(caseUserRepository, never()).grantAccess(CASE_ID, USER_ID, CASE_ACCESS
+                    .getReasonForAccess())
             );
         }
     }

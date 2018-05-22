@@ -159,7 +159,7 @@ class SubmitCaseTransactionTest {
                                          this.caseDetails,
                                          IGNORE_WARNING);
 
-        verify(caseUserRepository).grantAccess(CASE_ID, IDAM_ID);
+        verify(caseUserRepository).grantAccess(CASE_ID, IDAM_ID, "creator");
     }
 
     @Test

@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.ccd.BaseTest;
 import uk.gov.hmcts.ccd.MockUtils;
-import uk.gov.hmcts.ccd.domain.model.std.UserId;
+import uk.gov.hmcts.ccd.domain.model.std.CaseAccess;
 
 import java.util.List;
 import javax.inject.Inject;
@@ -71,7 +71,7 @@ public class CaseAccessEndpointIT extends BaseTest {
 
         mockMvc.perform(post(aUrl)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(mapper.writeValueAsString(new UserId(USER_ID))))
+            .content(USER_ID))
             .andExpect(status().isCreated())
             .andReturn();
 
@@ -156,7 +156,7 @@ public class CaseAccessEndpointIT extends BaseTest {
 
         mockMvc.perform(post(url)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(mapper.writeValueAsString(new UserId(USER_ID))))
+            .content(mapper.writeValueAsString(new CaseAccess(USER_ID, "executor"))))
             .andExpect(status().isCreated())
             .andReturn();
     }

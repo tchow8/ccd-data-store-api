@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.hmcts.ccd.domain.model.std.UserId;
+import uk.gov.hmcts.ccd.domain.model.std.CaseAccess;
 import uk.gov.hmcts.ccd.domain.service.caseaccess.CaseAccessOperation;
 
 import java.util.List;
@@ -23,9 +23,8 @@ public class CaseAccessEndpoint {
         this.caseAccessOperation = caseAccessOperation;
     }
 
-    @RequestMapping(
+    @GetMapping(
         value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/ids",
-        method = RequestMethod.GET,
         consumes = MediaType.ALL_VALUE
     )
     @ApiOperation(value = "Get case ids", notes = "Retrieve case ids for given users ids")
@@ -44,12 +43,11 @@ public class CaseAccessEndpoint {
         @RequestParam(value = "userId") final String idSearchingFor
     ) {
         LOG.debug("Finding cases user: {} has access to", idSearchingFor);
-        return caseAccessOperation.findCasesUserIdHasAccessTo(idSearchingFor);
+        return caseAccessOperation.findCasesUserIdHasAccessTo(jurisdictionId, idSearchingFor);
     }
 
-    @RequestMapping(
+    @PostMapping(
         value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/{cid}/users",
-        method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE
     )
     @ApiOperation(value = "Grant access to case")
@@ -67,15 +65,14 @@ public class CaseAccessEndpoint {
         @PathVariable("ctid") final String caseTypeId,
         @ApiParam(value = "Case ID", required = true)
         @PathVariable("cid") final String caseId,
-        @RequestBody final UserId id
+        @RequestBody final CaseAccess caseAccess
     ) {
-        LOG.debug("Granting access to case: {}, for user: {}", caseId, id);
-        caseAccessOperation.grantAccess(jurisdictionId, caseId, id.getId());
+        LOG.debug("Granting access to case: {}, for user: {}", caseId, caseAccess);
+        caseAccessOperation.grantAccess(jurisdictionId, caseId, caseAccess);
     }
 
-    @RequestMapping(
+    @DeleteMapping(
         value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/{cid}/users/{idToDelete}",
-        method = RequestMethod.DELETE,
         consumes = MediaType.ALL_VALUE
     )
     @ApiOperation(value = "Revoke access to case")
@@ -98,5 +95,28 @@ public class CaseAccessEndpoint {
     ) {
         LOG.debug("Revoking access to case: {}, for user: {}", caseId, idToDelete, idToDelete);
         caseAccessOperation.revokeAccess(jurisdictionId, caseId, idToDelete);
+    }
+
+    @GetMapping(
+        value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/{cid}/users",
+        consumes = MediaType.ALL_VALUE
+    )
+    @ApiOperation(value = "Get case ids", notes = "Retrieve case ids for given users ids")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "List of cases ids found"),
+        @ApiResponse(code = 400, message = "Invalid case ID")
+    })
+    public List<CaseAccess> findUsersWhoHaveAccessToCase(
+        @ApiParam(value = "Idam user ID", required = true)
+        @PathVariable("uid") final Integer uid,
+        @ApiParam(value = "Jurisdiction ID", required = true)
+        @PathVariable("jid") final String jurisdictionId,
+        @ApiParam(value = "Case type ID", required = true)
+        @PathVariable("ctid") final String caseTypeId,
+        @ApiParam(value = "Case ID", required = true)
+        @PathVariable("cid") final String caseId
+    ) {
+        LOG.debug("Finding users who have access to case: {}", caseId);
+        return caseAccessOperation.findUsersWhoHaveAccessToCase(jurisdictionId, caseId);
     }
 }
