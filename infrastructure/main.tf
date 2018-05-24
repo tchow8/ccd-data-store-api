@@ -33,7 +33,8 @@ locals {
   vaultUri = "${(var.env == "preview" || var.env == "spreview") ? local.previewVaultUri : local.nonPreviewVaultUri}"
 
   // S2S
-  s2s_url = "http://rpe-service-auth-provider-${local.env_ase_url}"
+//  s2s_url = "http://rpe-service-auth-provider-${local.env_ase_url}"
+  s2s_url = "http://rpe-service-auth-provider-saat.service.core-compute-saat.internal"
 }
 
 data "vault_generic_secret" "ccd_data_s2s_key" {
