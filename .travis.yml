@@ -11,7 +11,15 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
+before_install:
+  - echo -n | openssl s_client -connect scan.coverity.com:443 2>./openssl-connect.stderr | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
+
 script:
+  - if [[ ${COVERITY_SCAN_BRANCH} == 1 ]];
+    then
+        echo "Don't build on coverty_scan branch.";
+        exit 0;
+    fi
   - "./gradlew build --info"
   - "./gradlew dependencyCheckAnalyze || echo 'dependencyCheckAnalyze failed'"
   - "./gradlew sendCoverageToCodacy || echo sendCoverageToCodacy failed"
@@ -26,3 +34,12 @@ before_install:
 after_success:
   - 'bash <(curl -s https://codecov.io/bash) || echo "Codecov failed to upload"'
   - '[ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ] && sh ./publish-swagger-group-docs.sh v1 v2'
+
+addons:
+  coverity_scan:
+    project:
+      name: "dwaynebailey/ccd-data-store-api"
+      description: "CCD Data Store API"
+    notification_email: Dwayne.Bailey@HMCTS.net
+    build_command: ./gradlew build
+    branch_pattern: coverity_scan
