@@ -13,6 +13,10 @@ cache:
 
 before_install:
   - echo -n | openssl s_client -connect scan.coverity.com:443 2>./openssl-connect.stderr | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
+  - if [[ ${TRAVIS_BRANCH} == 'coverity_scan' ]]; then git remote add upstream https://github.com/hmcts/$(echo ${TRAVIS_REPO_SLUG} | cut -d "/" -f2).git; git remote -v; fi
+  - if [[ ${TRAVIS_BRANCH} == 'coverity_scan' ]]; then git fetch upstream master; fi
+  - if [[ ${TRAVIS_BRANCH} == 'coverity_scan' ]]; then git log -1 --pretty=format:%H upstream/master; fi
+  - if [[ ${TRAVIS_BRANCH} == 'coverity_scan' ]]; then git rebase upstream/master; fi
 
 script:
   - if [[ ${COVERITY_SCAN_BRANCH} == 1 ]];
