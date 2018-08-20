@@ -2,6 +2,14 @@ language: java
 jdk:
   - oraclejdk8
 
+env:
+  global:
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    # via the "travis encrypt" command using the project repo's public key
+    # encypted for db/$project
+    - secure: "kLlzTGHxcbywx056RI+gUlyIjywQGmjs8kbWEsYQaF43sKqNiQGUtWsZmBCSDs86SIOL3EO0p0qgLuKwK9y9fQ1wIOkjjOIqgm8EknChPysSFhjpXplAmQ/Qaq3XL8rVaZ/CcClmAI4b1uh/ye5eQglkTtYB58A1rfJKlrpaai0hFSoSLesIj5doZr+KYoBql86jfY78P8i8G97IDX5dd86qkVgESekR/NgapHeYJUon7qGL2uNtCEQI88SAcm/CcfFzRWO8laai1kI7x+RgRZqjeCnaqBGJAoq+H9Z5xvMT8kEiprRioodt6eCU9ByehT22Hq8z7PferBYmSU/LpPbmVA22Tk2EM7qHlkNAfeZDR/p+ajnAEAEcEdjBu12dnm3S1nqUTMFMCa0G1PkY641jIFfpqCUsQ2aeXI6+zRVm90+YyO1ZwUCjl9xYrWvd4xxsEBO248TC8lRt39T5ThJksOBPq7GA+44nx8wvcLkks+lxL3aq9bCcJWv5O578Vut6rscjSfq0TEkhnAgT06AZtphcRTZ23E9B2lhDG7OaqGy40bclsWo2YQju8gTelggb9uOCCpdV6jXzN+bq2dASkIeV6+8oacFqVUkL/LDmI8KwIwC0kvX8r+NS6ekQIVqRQICig6NXiUdkfBWr0glA+fe5WZbf1NV4kAjdeEM="
+    - CODACY_PROJECT_TOKEN=24f7bf62b3fa4328aa3b9bf32c07b0d9
+
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -27,10 +35,6 @@ script:
   - "./gradlew build --info"
   - "./gradlew dependencyCheckAnalyze || echo 'dependencyCheckAnalyze failed'"
   - "./gradlew sendCoverageToCodacy || echo sendCoverageToCodacy failed"
-
-env:
-  global:
-    - CODACY_PROJECT_TOKEN=24f7bf62b3fa4328aa3b9bf32c07b0d9
 
 before_install:
   - curl https://raw.githubusercontent.com/hmcts/reform-api-docs/support-swagger-groups/bin/publish-swagger-group-docs.sh > publish-swagger-group-docs.sh
