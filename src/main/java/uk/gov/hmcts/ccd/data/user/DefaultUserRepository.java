@@ -107,8 +107,9 @@ public class DefaultUserRepository implements UserRepository {
             LOG.error("Failed to retrieve user profile", e);
             final List<String> headerMessages = e.getResponseHeaders().get("Message");
             final String message = headerMessages != null ? headerMessages.get(0) : e.getMessage();
-            if (message != null)
+            if (message != null) {
                 throw new BadRequestException(message);
+            }
             throw new ServiceException("Problem getting user default settings for " + userId);
         }
     }
