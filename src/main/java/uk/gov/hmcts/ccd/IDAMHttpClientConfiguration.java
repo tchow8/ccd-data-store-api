@@ -193,8 +193,7 @@ class IDAMHttpClientConfiguration {
             );
             try {
                 LOG.info(detailedLogMessage(message, httpRequest, response));
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LOG.info(String.format("%s. Exception occurred when creating detailed message", message), e);
             }
         }

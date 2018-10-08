@@ -113,8 +113,7 @@ class CreatorGetCaseOperationTest {
 
         if (args.length == 1) {
             verify(getCaseOperation).execute(same(JURISDICTION_ID));
-        }
-        else {
+        } else {
             verify(getCaseOperation).execute(same(JURISDICTION_ID), same(CASE_TYPE_ID), same(CASE_REFERENCE));
         }
 
