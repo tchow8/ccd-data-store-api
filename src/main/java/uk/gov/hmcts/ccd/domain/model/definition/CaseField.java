@@ -104,9 +104,13 @@ public class CaseField implements Serializable {
         this.liveUntil = liveUntil;
     }
 
-    public String getShowConditon() { return showConditon; }
+    public String getShowConditon() {
+        return showConditon;
+    }
 
-    public void setShowConditon(String showConditon) { this.showConditon = showConditon; }
+    public void setShowConditon(String showConditon) {
+        this.showConditon = showConditon;
+    }
 
     public List<AccessControlList> getAccessControlLists() {
         return accessControlLists;
