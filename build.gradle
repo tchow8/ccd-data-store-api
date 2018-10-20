@@ -23,6 +23,7 @@ plugins {
     id 'org.owasp.dependencycheck' version '3.3.2'
     id 'com.github.spotbugs' version '1.6.2'
     id 'net.ltgt.apt' version '0.8'
+    id "info.solidsoft.pitest" version "1.3.0"
 }
 
 apply plugin: 'java'
@@ -233,6 +234,10 @@ dependencies {
     compile 'org.mapstruct:mapstruct-jdk8:1.2.0.Final'
     apt 'org.mapstruct:mapstruct-processor:1.2.0.Final'
     compile 'org.jooq:jool-java-8:0.9.14'
+
+    compile group: 'org.pitest', name: 'pitest', version: '1.3.2'
+    compile group:'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin', version: '1.3.0'
+    compile group:'org.codehaus.sonar-plugins', name:'sonar-pitest-plugin', version: '0.5'
 }
 // end::dependencies[]
 
@@ -427,7 +432,18 @@ sonarqube {
         property "sonar.junit.reportPaths", "${project.buildDir}/test-results/junit-platform"
         property "sonar.projectName", "ccd-data-store-api"
         property "sonar.projectKey", "ccd-data-store-api"
+        property "sonar.pitest.mode", "reuseReport"
+        property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     }
+}
+
+pitest {
+    targetClasses = ['**uk.gov.hmcts.ccd.*']
+    threads = 4
+    outputFormats = ['XML', 'HTML']
+    timestampedReports = true
+    mutationThreshold = 75
+    testSourceSets = [sourceSets.test, sourceSets.aat]
 }
 
 // adopted from
