@@ -2,7 +2,14 @@
 
 properties([
     // H allow predefined but random minute see https://en.wikipedia.org/wiki/Cron#Non-standard_characters
-    pipelineTriggers([cron('H 05 * * *')])
+    pipelineTriggers([cron('H 05 * * *')]),
+    parameters([
+        booleanParam(
+            name: 'RUN_MUTATION',
+            defaultValue: true,
+            description: 'Run pitest mutation tests (duration approx. 1 hour)'
+        )
+    ]),
 ])
 
 @Library("Infrastructure")
@@ -40,8 +47,11 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 }
 
 withNightlyPipeline(type, product, component) {
+    enableSlackNotifications('#ccd-nightly-builds')
     loadVaultSecrets(secrets)
     enableDbMigration()
-    enableMutationTest(60)
-    enableSlackNotifications('#ccd-nightly-builds')
+
+    if (params.RUN_MUTATION) {
+        enableMutationTest(60)
+    }
 }
