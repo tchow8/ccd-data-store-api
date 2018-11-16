@@ -26,5 +26,6 @@ public final class V2 {
         public static final String CASE_ID_INVALID = "Case ID is not valid";
         public static final String CASE_ROLE_REQUIRED = "Case role missing";
         public static final String CASE_ROLE_INVALID = "Case role does not exist";
+        public static final String GRANT_FORBIDDEN = "Grant action is reserved to users with entire jurisdiction access";
     }
 }

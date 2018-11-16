@@ -7,6 +7,7 @@ import uk.gov.hmcts.ccd.data.casedetails.CachedCaseDetailsRepository;
 import uk.gov.hmcts.ccd.data.casedetails.CaseDetailsRepository;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseDetails;
 import uk.gov.hmcts.ccd.domain.service.getcase.CaseNotFoundException;
+import uk.gov.hmcts.ccd.v2.external.domain.CaseUser;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -33,6 +34,8 @@ public class CaseAccessOperation {
         caseUserRepository.grantAccess(Long.valueOf(caseDetails.getId()), userId);
     }
 
+
+
     @Transactional
     public void revokeAccess(final String jurisdictionId, final String caseReference, final String userId) {
         final Optional<CaseDetails> maybeCase = caseDetailsRepository.findByReference(jurisdictionId,
@@ -48,4 +51,10 @@ public class CaseAccessOperation {
                                  .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void grant(CaseDetails caseDetails, CaseUser caseUser) {
+        // 1. Get case roles
+        // 2. Validate roles
+        // 3. Update
+    }
 }

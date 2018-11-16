@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -16,5 +17,5 @@ public class CaseUser {
     private String userId;
 
     @JsonProperty("case_roles")
-    private Set<String> caseRoles;
+    private Set<String> caseRoles = new HashSet<>();
 }
