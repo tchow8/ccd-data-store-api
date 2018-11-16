@@ -49,7 +49,7 @@ public class CaseUserController {
         consumes = MediaType.APPLICATION_JSON_VALUE
     )
     @ApiOperation(
-        value = "Grant user access to a case with a case role"
+        value = "Grant user access to a case with one or many case roles"
     )
     @ApiResponses({
         @ApiResponse(

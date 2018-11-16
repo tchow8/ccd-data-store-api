@@ -77,11 +77,6 @@ public class DefaultCaseDetailsRepository implements CaseDetailsRepository {
     }
 
     @Override
-    public Optional<CaseDetails> findByReference(String caseReference) {
-        return findByReference(null, caseReference);
-    }
-
-    @Override
     public Optional<CaseDetails> findByReference(String jurisdiction, Long caseReference) {
         return findByReference(jurisdiction, caseReference.toString());
     }
@@ -92,8 +87,8 @@ public class DefaultCaseDetailsRepository implements CaseDetailsRepository {
     }
 
     @Override
-    public Optional<CaseDetails> findByReference(String reference) {
-        return find(null, reference).map(this.caseDetailsMapper::entityToModel);
+    public Optional<CaseDetails> findByReference(String caseReference) {
+        return findByReference(null, caseReference);
     }
 
     @Override

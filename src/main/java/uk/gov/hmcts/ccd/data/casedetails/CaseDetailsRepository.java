@@ -13,8 +13,6 @@ public interface CaseDetailsRepository {
 
     Optional<CaseDetails> findById(String jurisdiction, Long id);
 
-    Optional<CaseDetails> findByReference(String reference);
-
     Optional<CaseDetails> findByReference(String jurisdiction, Long caseReference);
 
     Optional<CaseDetails> findByReference(String jurisdiction, String reference);
