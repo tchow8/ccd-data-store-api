@@ -137,4 +137,21 @@
         <gav regex="true">^org\.springframework:spring-.+:.*$</gav>
         <cve>CVE-2018-15756</cve>
     </suppress>
+    <suppress>
+        <notes>
+            We are using Elasticsearch >= 6.4.2.
+
+            Elasticsearch Alerting and Monitoring in versions before 6.4.1 or
+            5.6.12 have an information disclosure issue when secrets are
+            configured via the API. The Elasticsearch _cluster/settings API,
+            when queried, could leak sensitive configuration information such
+            as passwords, tokens, or usernames. This could allow an
+            authenticated Elasticsearch user to improperly view these details.
+
+            file name: jest-6.3.1.jar
+            file name: jest-common-6.3.1.jar
+        </notes>
+        <gav regex="true">^io\.searchbox:jest(|-common):.*$</gav>
+        <cve>CVE-2018-3831</cve>
+     </suppress>
 </suppressions>
