@@ -30,8 +30,7 @@ public class CaseUserRepository {
      */
     @Deprecated
     public void grantAccess(final Long caseId, final String userId) {
-        em.merge(new CaseUserEntity(caseId, userId));
-        auditRepo.auditGrant(caseId, userId, GlobalCaseRole.CREATOR.getRole());
+        grantAccess(caseId, userId, GlobalCaseRole.CREATOR.getRole());
     }
 
     public void grantAccess(Long caseId, String userId, String caseRole) {
@@ -39,13 +38,24 @@ public class CaseUserRepository {
         auditRepo.auditGrant(caseId, userId, caseRole);
     }
 
+    /**
+     * Revoke access to user for given case.
+     * @param caseId
+     * @param userId
+     * @deprecated Use {@link CaseUserRepository#revokeAccess(Long, String, String)} with explicit case role instead
+     */
+    @Deprecated
     public void revokeAccess(final Long caseId, final String userId) {
-        CaseUserEntity primaryKey = new CaseUserEntity(caseId, userId);
+        revokeAccess(caseId, userId, GlobalCaseRole.CREATOR.getRole());
+    }
+
+    public void revokeAccess(Long caseId, String userId, String caseRole) {
+        CaseUserEntity primaryKey = new CaseUserEntity(caseId, userId, caseRole);
         CaseUserEntity caseUser = em.find(CaseUserEntity.class, primaryKey.getCasePrimaryKey());
 
         if (caseUser != null) {
             em.remove(caseUser);
-            auditRepo.auditRevoke(caseId, userId);
+            auditRepo.auditRevoke(caseId, userId, caseRole);
         }
     }
 

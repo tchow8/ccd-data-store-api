@@ -23,8 +23,8 @@ public class CaseUserAuditRepository {
         em.persist(getEntity(caseId, userId, caseRole, GRANT));
     }
 
-    void auditRevoke(final Long caseId, final String userId) {
-        em.persist(getEntity(caseId, userId, GlobalCaseRole.CREATOR.getRole(), REVOKE));
+    void auditRevoke(Long caseId, String userId, String caseRole) {
+        em.persist(getEntity(caseId, userId, caseRole, REVOKE));
     }
 
     private CaseUserAuditEntity getEntity(Long caseId, String userId, String caseRole, Action action) {
