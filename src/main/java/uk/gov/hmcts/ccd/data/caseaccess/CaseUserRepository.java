@@ -22,9 +22,21 @@ public class CaseUserRepository {
         this.auditRepo = caseUserAuditRepository;
     }
 
+    /**
+     * Grant access to user for given case.
+     * @param caseId
+     * @param userId
+     * @deprecated Use {@link CaseUserRepository#grantAccess(Long, String, String)} with explicit case role instead
+     */
+    @Deprecated
     public void grantAccess(final Long caseId, final String userId) {
         em.merge(new CaseUserEntity(caseId, userId));
-        auditRepo.auditGrant(caseId, userId);
+        auditRepo.auditGrant(caseId, userId, GlobalCaseRole.CREATOR.getRole());
+    }
+
+    public void grantAccess(Long caseId, String userId, String caseRole) {
+        em.merge(new CaseUserEntity(caseId, userId, caseRole));
+        auditRepo.auditGrant(caseId, userId, caseRole);
     }
 
     public void revokeAccess(final Long caseId, final String userId) {

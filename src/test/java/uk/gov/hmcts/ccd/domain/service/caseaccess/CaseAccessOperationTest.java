@@ -131,7 +131,7 @@ class CaseAccessOperationTest {
 
             caseAccessOperation.grant(caseDetails, caseUser);
 
-            verify(caseUserRepository).grantAccess(CASE_ID.toString(), USER_ID, CASE_ROLE);
+            verify(caseUserRepository).grantAccess(CASE_ID, USER_ID, CASE_ROLE);
         }
     }
 

@@ -24,6 +24,7 @@ public class CaseUserRepositoryTest extends BaseTest {
 
     private static final Long CASE_ID = 1L;
     private static final String USER_ID = "89000";
+    private static final String CASE_ROLE = "[DEFENDANT]";
 
     @PersistenceContext
     private EntityManager em;
@@ -47,7 +48,16 @@ public class CaseUserRepositoryTest extends BaseTest {
         repository.grantAccess(CASE_ID, USER_ID);
 
         assertThat(countAccesses(CASE_ID, USER_ID), equalTo(1));
-        verify(auditRepository).auditGrant(CASE_ID, USER_ID);
+        verify(auditRepository).auditGrant(CASE_ID, USER_ID, GlobalCaseRole.CREATOR.getRole());
+    }
+
+    @Test
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:sql/insert_cases.sql"})
+    public void shouldGrantAccessAsCustomCaseRole() {
+        repository.grantAccess(CASE_ID, USER_ID, CASE_ROLE);
+
+        assertThat(countAccesses(CASE_ID, USER_ID, CASE_ROLE), equalTo(1));
+        verify(auditRepository).auditGrant(CASE_ID, USER_ID, CASE_ROLE);
     }
 
     @Test
@@ -75,12 +85,16 @@ public class CaseUserRepositoryTest extends BaseTest {
     }
 
     private Integer countAccesses(Long caseId, String userId) {
+        return countAccesses(caseId, userId, GlobalCaseRole.CREATOR.getRole());
+    }
+
+    private Integer countAccesses(Long caseId, String userId, String role) {
         em.flush();
 
         final Object[] parameters = new Object[]{
             caseId,
             userId,
-            GlobalCaseRole.CREATOR.getRole()
+            role
         };
 
         return template.queryForObject(COUNT_CASE_USERS, parameters, Integer.class);

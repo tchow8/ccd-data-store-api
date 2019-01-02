@@ -69,6 +69,7 @@ public class CaseAccessOperation {
                     throw new InvalidCaseRoleException(role);
                 });
 
-        caseRoles.forEach(role -> caseUserRepository.grantAccess(caseDetails.getId(), caseUser.getUserId(), role));
+        final Long caseId = new Long(caseDetails.getId());
+        caseRoles.forEach(role -> caseUserRepository.grantAccess(caseId, caseUser.getUserId(), role));
     }
 }
