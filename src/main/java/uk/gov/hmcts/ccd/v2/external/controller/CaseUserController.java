@@ -49,7 +49,7 @@ public class CaseUserController {
         consumes = MediaType.APPLICATION_JSON_VALUE
     )
     @ApiOperation(
-        value = "Grant user access to a case with one or many case roles"
+        value = "Update a user's roles for a specific case. Grant access for added case roles and revoke access for removed case roles."
     )
     @ApiResponses({
         @ApiResponse(
@@ -86,7 +86,7 @@ public class CaseUserController {
             throw new BadRequestException(V2.Error.CASE_ID_INVALID);
         }
 
-        if (null == caseUser || CollectionUtils.isEmpty(caseUser.getCaseRoles())) {
+        if (null == caseUser) {
             throw new BadRequestException(V2.Error.CASE_ROLE_REQUIRED);
         }
 
@@ -98,7 +98,7 @@ public class CaseUserController {
         }
 
         caseUser.setUserId(userId);
-        caseAccessOperation.grant(caseDetails, caseUser);
+        caseAccessOperation.updateUserAccess(caseDetails, caseUser);
 
         return ResponseEntity.noContent()
                              .build();

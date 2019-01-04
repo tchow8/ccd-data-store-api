@@ -16,10 +16,8 @@ import uk.gov.hmcts.ccd.domain.service.getcase.CaseNotFoundException;
 import uk.gov.hmcts.ccd.endpoint.exceptions.InvalidCaseRoleException;
 import uk.gov.hmcts.ccd.v2.external.domain.CaseUser;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,6 +35,7 @@ class CaseAccessOperationTest {
     private static final String NOT_CASE_ROLE = "NotACaseRole";
     private static final String CASE_ROLE = "[DEFENDANT]";
     private static final String CASE_ROLE_OTHER = "[OTHER]";
+    private static final String CASE_ROLE_GRANTED = "[ALREADY_GRANTED]";
 
     @Mock
     private CaseDetailsRepository caseDetailsRepository;
@@ -57,6 +56,7 @@ class CaseAccessOperationTest {
 
         configureCaseRepository();
         configureCaseRoleRepository();
+        configureCaseUserRepository();
     }
 
     @Nested
@@ -100,7 +100,7 @@ class CaseAccessOperationTest {
     }
 
     @Nested()
-    @DisplayName("grantAccess(reference, caseUser)")
+    @DisplayName("updateUserAccess(reference, caseUser)")
     class GrantAccessCaseUser {
         private CaseDetails caseDetails;
 
@@ -112,27 +112,43 @@ class CaseAccessOperationTest {
         }
 
         @Test
-        @DisplayName("should reject granting when case roles doesn't exist")
+        @DisplayName("should reject update when it contains an unknown case role")
         void shouldRejectWhenUnknownCaseRoles() {
-            final CaseUser caseUser = new CaseUser();
-            caseUser.setUserId(USER_ID);
-            caseUser.getCaseRoles().add(NOT_CASE_ROLE);
-
-            assertThrows(InvalidCaseRoleException.class, ()-> caseAccessOperation.grant(caseDetails, caseUser));
+            assertThrows(InvalidCaseRoleException.class,
+                         () -> caseAccessOperation.updateUserAccess(caseDetails, caseUser(NOT_CASE_ROLE)));
             verifyZeroInteractions(caseUserRepository);
         }
 
         @Test
-        @DisplayName("should grant access when case role valid")
+        @DisplayName("should grant access when added case role valid")
         void shouldGrantAccessForCaseRole() {
-            final CaseUser caseUser = new CaseUser();
-            caseUser.setUserId(USER_ID);
-            caseUser.getCaseRoles().add(CASE_ROLE);
-
-            caseAccessOperation.grant(caseDetails, caseUser);
+            caseAccessOperation.updateUserAccess(caseDetails, caseUser(CASE_ROLE));
 
             verify(caseUserRepository).grantAccess(CASE_ID, USER_ID, CASE_ROLE);
         }
+
+        @Test
+        @DisplayName("should revoke access for removed case roles")
+        void shouldRevokeRemovedCaseRoles() {
+            caseAccessOperation.updateUserAccess(caseDetails, caseUser(CASE_ROLE));
+
+            verify(caseUserRepository).revokeAccess(CASE_ID, USER_ID, CASE_ROLE_GRANTED);
+        }
+
+        @Test
+        @DisplayName("should ignore case roles already granted")
+        void shouldIgnoreGrantedCaseRoles() {
+            caseAccessOperation.updateUserAccess(caseDetails, caseUser(CASE_ROLE_GRANTED));
+
+            verify(caseUserRepository, never()).grantAccess(CASE_ID, USER_ID, CASE_ROLE_GRANTED);
+        }
+    }
+
+    private CaseUser caseUser(String caseRole) {
+        final CaseUser caseUser = new CaseUser();
+        caseUser.setUserId(USER_ID);
+        caseUser.getCaseRoles().add(caseRole);
+        return caseUser;
     }
 
     @Nested
@@ -189,7 +205,13 @@ class CaseAccessOperationTest {
     }
 
     private void configureCaseRoleRepository() {
-        when(caseRoleRepository.getCaseRoles(CASE_TYPE_ID)).thenReturn(Sets.newHashSet(CASE_ROLE, CASE_ROLE_OTHER));
+        when(caseRoleRepository.getCaseRoles(CASE_TYPE_ID)).thenReturn(Sets.newHashSet(CASE_ROLE,
+                                                                                       CASE_ROLE_OTHER,
+                                                                                       CASE_ROLE_GRANTED));
+    }
+
+    private void configureCaseUserRepository() {
+        when(caseUserRepository.findCaseRoles(CASE_ID, USER_ID)).thenReturn(Collections.singletonList(CASE_ROLE_GRANTED));
     }
 
 }

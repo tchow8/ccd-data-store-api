@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -18,9 +19,14 @@ import uk.gov.hmcts.ccd.infrastructure.user.UserAuthorisation;
 import uk.gov.hmcts.ccd.infrastructure.user.UserAuthorisation.AccessLevel;
 import uk.gov.hmcts.ccd.v2.external.domain.CaseUser;
 
+import java.util.Arrays;
 import java.util.Optional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +53,7 @@ class CaseUserControllerTest {
     @InjectMocks
     private CaseUserController caseUserController;
 
-    private CaseUser caseUser;
+    private CaseUser defaultCaseUser;
     private CaseDetails caseDetails;
 
     @BeforeEach
@@ -65,8 +71,7 @@ class CaseUserControllerTest {
 
         when(caseDetailsRepository.findByReference(CASE_REFERENCE)).thenReturn(Optional.of(caseDetails));
 
-        caseUser = new CaseUser();
-        caseUser.getCaseRoles().add(CASE_ROLE_1);
+        defaultCaseUser = caseUser(CASE_ROLE_1);
     }
 
     @Nested
@@ -92,22 +97,13 @@ class CaseUserControllerTest {
         }
 
         @Test
-        @DisplayName("should return 400 when case role missing")
-        void should400WhenCaseRoleMissing() {
-            assertThrows(
-                BadRequestException.class,
-                () -> caseUserController.putUser(CASE_REFERENCE, USER_ID, new CaseUser())
-            );
-        }
-
-        @Test
         @DisplayName("should return 404 when case not found")
         void should404WhenCaseNotFound() {
             when(caseDetailsRepository.findByReference(CASE_REFERENCE)).thenReturn(Optional.empty());
 
             assertThrows(
                 CaseNotFoundException.class,
-                () -> caseUserController.putUser(CASE_REFERENCE, USER_ID, caseUser)
+                () -> caseUserController.putUser(CASE_REFERENCE, USER_ID, defaultCaseUser)
             );
         }
 
@@ -118,7 +114,7 @@ class CaseUserControllerTest {
 
             assertThrows(
                 ForbiddenException.class,
-                () -> caseUserController.putUser(CASE_REFERENCE, USER_ID, caseUser)
+                () -> caseUserController.putUser(CASE_REFERENCE, USER_ID, defaultCaseUser)
             );
         }
 
@@ -129,17 +125,49 @@ class CaseUserControllerTest {
 
             assertThrows(
                 ForbiddenException.class,
-                () -> caseUserController.putUser(CASE_REFERENCE, USER_ID, caseUser)
+                () -> caseUserController.putUser(CASE_REFERENCE, USER_ID, defaultCaseUser)
+            );
+        }
+
+        @Test
+        @DisplayName("should revoke access when case roles empty")
+        void shouldRevokeAccessWhenRolesEmpty() {
+            final ArgumentCaptor<CaseUser> caseUserCaptor = ArgumentCaptor.forClass(CaseUser.class);
+
+            caseUserController.putUser(CASE_REFERENCE, USER_ID, caseUser());
+
+            verify(caseAccessOperation).updateUserAccess(eq(caseDetails), caseUserCaptor.capture());
+
+            final CaseUser caseUser = caseUserCaptor.getValue();
+            assertAll(
+                () -> assertThat(caseUser.getUserId(), equalTo(USER_ID)),
+                () -> assertThat(caseUser.getCaseRoles(), hasSize(0))
             );
         }
 
         @Test
         @DisplayName("should grant access to case")
         void shouldGrantCaseRoleAccess() {
-            caseUserController.putUser(CASE_REFERENCE, USER_ID, caseUser);
+            final ArgumentCaptor<CaseUser> caseUserCaptor = ArgumentCaptor.forClass(CaseUser.class);
 
-            verify(caseAccessOperation).grant(caseDetails, caseUser);
+            caseUserController.putUser(CASE_REFERENCE, USER_ID, defaultCaseUser);
+
+            verify(caseAccessOperation).updateUserAccess(eq(caseDetails), caseUserCaptor.capture());
+
+            final CaseUser caseUser = caseUserCaptor.getValue();
+            assertAll(
+                () -> assertThat(caseUser.getUserId(), equalTo(USER_ID)),
+                () -> assertThat(caseUser.getCaseRoles(), hasSize(1)),
+                () -> assertThat(caseUser.getCaseRoles(), contains(CASE_ROLE_1))
+            );
         }
+    }
+
+    private CaseUser caseUser(String... caseRoles) {
+        final CaseUser caseUser = new CaseUser();
+        caseUser.getCaseRoles()
+                .addAll(Arrays.asList(caseRoles));
+        return caseUser;
     }
 
 }

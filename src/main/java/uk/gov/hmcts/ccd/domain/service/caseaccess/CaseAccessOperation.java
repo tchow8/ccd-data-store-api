@@ -58,18 +58,30 @@ public class CaseAccessOperation {
     }
 
     @Transactional
-    public void grant(CaseDetails caseDetails, CaseUser caseUser) {
-        final Set<String> caseRoles = caseRoleRepository.getCaseRoles(caseDetails.getCaseTypeId());
+    public void updateUserAccess(CaseDetails caseDetails, CaseUser caseUser) {
+        final Set<String> validCaseRoles = caseRoleRepository.getCaseRoles(caseDetails.getCaseTypeId());
+        final Set<String> targetCaseRoles = caseUser.getCaseRoles();
 
-        caseUser.getCaseRoles()
-                .stream()
-                .filter((role) -> !caseRoles.contains(role))
-                .findFirst()
-                .ifPresent(role -> {
-                    throw new InvalidCaseRoleException(role);
-                });
+        targetCaseRoles.stream()
+                       .filter((role) -> !validCaseRoles.contains(role))
+                       .findFirst()
+                       .ifPresent(role -> {
+                           throw new InvalidCaseRoleException(role);
+                       });
 
         final Long caseId = new Long(caseDetails.getId());
-        caseRoles.forEach(role -> caseUserRepository.grantAccess(caseId, caseUser.getUserId(), role));
+        final List<String> currentCaseRoles = caseUserRepository.findCaseRoles(caseId, caseUser.getUserId());
+
+        // Grant added case roles
+        targetCaseRoles.stream()
+                       .filter((targetRole) -> !currentCaseRoles.contains(targetRole))
+                       .forEach(targetRole -> caseUserRepository.grantAccess(caseId, caseUser.getUserId(), targetRole));
+
+        // Revoke removed case roles
+        currentCaseRoles.stream()
+                        .filter((currentRole) -> !targetCaseRoles.contains(currentRole))
+                        .forEach(currentRole -> caseUserRepository.revokeAccess(caseId,
+                                                                                caseUser.getUserId(),
+                                                                                currentRole));
     }
 }
