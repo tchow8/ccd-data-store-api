@@ -1,5 +1,11 @@
 package uk.gov.hmcts.ccd.datastore.tests.v2.internal;
 
+import static java.lang.Boolean.FALSE;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+
 import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -7,9 +13,6 @@ import uk.gov.hmcts.ccd.datastore.tests.AATHelper;
 import uk.gov.hmcts.ccd.datastore.tests.BaseTest;
 import uk.gov.hmcts.ccd.datastore.tests.fixture.AATCaseType;
 import uk.gov.hmcts.ccd.v2.V2;
-
-import static java.lang.Boolean.FALSE;
-import static org.hamcrest.Matchers.*;
 
 @DisplayName("Get UI user profile")
 class GetUIUserProfileTest extends BaseTest {
