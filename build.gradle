@@ -267,6 +267,10 @@ dependencyManagement {
     }
 }
 
+wrapper {
+    distributionType = Wrapper.DistributionType.ALL
+}
+
 task projectVersion {
     description 'Prints the version of this project; used for publishing JAR file'
     doLast {
