@@ -8,14 +8,14 @@
              endDelimiter="\nGO"
              splitStatements="true"
              stripComments="true">
-            CREATE INDEX idx_case_data_case_reference ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{caseReference}'))));
-            CREATE INDEX idx_case_data_d8_case_reference ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{D8caseReference}'))));
-            CREATE INDEX idx_case_data_generated_nino ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{generatedNino}'))));
-            CREATE INDEX idx_case_data_generated_surname ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{generatedSurname}'))));
-            CREATE INDEX idx_case_data_d8_petitioner_email ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{D8PetitionerEmail}'))));
-            CREATE INDEX idx_case_data_application_type ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{applicationType}'))));
-            CREATE INDEX idx_case_data_deceased_forenames ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{deceasedForenames}'))));
-            CREATE INDEX idx_case_data_d8_divorce_unit ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{D8DivorceUnit}'))));
+            CREATE INDEX IF NOT EXISTS idx_case_data_case_reference ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{caseReference}'))));
+            CREATE INDEX IF NOT EXISTS idx_case_data_d8_case_reference ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{D8caseReference}'))));
+            CREATE INDEX IF NOT EXISTS idx_case_data_generated_nino ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{generatedNino}'))));
+            CREATE INDEX IF NOT EXISTS idx_case_data_generated_surname ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{generatedSurname}'))));
+            CREATE INDEX IF NOT EXISTS idx_case_data_d8_petitioner_email ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{D8PetitionerEmail}'))));
+            CREATE INDEX IF NOT EXISTS idx_case_data_application_type ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{applicationType}'))));
+            CREATE INDEX IF NOT EXISTS idx_case_data_deceased_forenames ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{deceasedForenames}'))));
+            CREATE INDEX IF NOT EXISTS idx_case_data_d8_divorce_unit ON public.case_data USING BTREE ((TRIM(UPPER(data#>>'{D8DivorceUnit}'))));
         </sql>
     </changeSet>
 </databaseChangeLog>
