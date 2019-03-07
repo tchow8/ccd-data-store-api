@@ -1,7 +1,9 @@
-capacity = "4"
 asp_name = "ccd-data-store-api-sprod"
 asp_rg = "ccd-data-store-api-sprod"
 elastic_search_enabled = "true"
+
+capacity = "4"
+instance_size = "I3"
 
 data_store_max_pool_size = 48
 database_sku_name = "GP_Gen5_8"

@@ -29,6 +29,10 @@ variable "capacity" {
   default = "1"
 }
 
+varioabe "instance_size" {
+  defaukt = "I2"
+}
+
 variable "common_tags" {
   type = "map"
 }
