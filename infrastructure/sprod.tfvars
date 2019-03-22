@@ -1,6 +1,7 @@
 asp_name = "ccd-data-store-api-sprod"
 asp_rg = "ccd-data-store-api-sprod"
 capacity = "4"
+client_affinity_enabled = "true"
 
 elastic_search_enabled = "true"
 
