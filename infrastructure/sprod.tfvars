@@ -1,6 +1,7 @@
-capacity = "4"
 asp_name = "ccd-data-store-api-sprod"
 asp_rg = "ccd-data-store-api-sprod"
+capacity = "4"
+
 elastic_search_enabled = "true"
 
 data_store_max_pool_size = 48
