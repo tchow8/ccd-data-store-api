@@ -200,3 +200,8 @@ variable "http_client_validate_after_inactivity" {
   type = "string"
   default = "0"
 }
+
+variable "client_affinity_enabled" {
+  type = "string"
+  default = "false"
+}

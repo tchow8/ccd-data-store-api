@@ -86,7 +86,7 @@ resource "random_string" "draft_encryption_key" {
 }
 
 module "ccd-data-store-api" {
-  source   = "git@github.com:hmcts/cnp-module-webapp?ref=master"
+  source   = "git@github.com:hmcts/cnp-module-webapp?ref=RDM-4381-app_affinity"
   product  = "${local.app_full_name}"
   location = "${var.location}"
   env      = "${var.env}"
@@ -99,6 +99,7 @@ module "ccd-data-store-api" {
   asp_rg = "${(var.asp_rg == "use_shared") ? local.sharedASPResourceGroup : var.asp_rg}"
   website_local_cache_sizeinmb = 2000
   capacity = "${var.capacity}"
+  client_affinity_enabled = "${var.client_affinity_enabled}"
 
   app_settings = {
     DATA_STORE_DB_HOST = "${module.data-store-db.host_name}"
