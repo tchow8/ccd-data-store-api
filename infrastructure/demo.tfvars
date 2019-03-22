@@ -6,6 +6,7 @@ frontend_url = "https://www.ccd.demo.platform.hmcts.net"
 asp_name = "ccd-data-store-api-demo"
 asp_rg = "ccd-data-store-api-demo"
 capacity = "4"
+client_affinity_enabled = "true"
 
 elastic_search_enabled = "true"
 

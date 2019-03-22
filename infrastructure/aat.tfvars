@@ -7,6 +7,7 @@ frontend_url = "https://www-ccd.nonprod.platform.hmcts.net"
 asp_name = "ccd-data-store-api-aat"
 asp_rg = "ccd-data-store-api-aat"
 capacity = "4"
+client_affinity_enabled = "true"
 
 elastic_search_enabled = "true"
 
