@@ -22,6 +22,8 @@ public class FieldType implements Serializable {
     private BigDecimal max = null;
     @JsonProperty("regular_expression")
     private String regularExpression = null;
+    @JsonProperty("field_type_parameter")
+    private String fieldTypeParameter = null;
     @JsonProperty("fixed_list_items")
     private List<FixedListItem> fixedListItems = new ArrayList<>();
     @JsonProperty("complex_fields")
@@ -59,6 +61,14 @@ public class FieldType implements Serializable {
 
     public void setRegularExpression(String regularExpression) {
         this.regularExpression = regularExpression;
+    }
+
+    public String getFieldTypeParameter() {
+        return fieldTypeParameter;
+    }
+
+    public void setFieldTypeParameter(final String fieldTypeParameter) {
+        this.fieldTypeParameter = fieldTypeParameter;
     }
 
     public List<FixedListItem> getFixedListItems() {
