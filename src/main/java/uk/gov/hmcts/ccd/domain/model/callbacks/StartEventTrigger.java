@@ -2,7 +2,10 @@ package uk.gov.hmcts.ccd.domain.model.callbacks;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseDetails;
+
+import java.util.Map;
 
 public class StartEventTrigger {
     @JsonProperty("case_details")
@@ -36,6 +39,11 @@ public class StartEventTrigger {
     }
 
     @JsonIgnore
+    public String getJurisdictionId() {
+        return caseDetails.getJurisdiction();
+    }
+
+    @JsonIgnore
     public String getCaseTypeId() {
         return caseDetails.getCaseTypeId();
     }
@@ -43,5 +51,10 @@ public class StartEventTrigger {
     @JsonIgnore
     public String getCaseReference() {
         return caseDetails.getReferenceAsString();
+    }
+
+    @JsonIgnore
+    public Map<String, JsonNode> getData() {
+        return caseDetails.getData();
     }
 }

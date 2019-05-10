@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseDetails;
+import uk.gov.hmcts.ccd.domain.service.accesscontrol.AccessManagementProvider;
+import uk.gov.hmcts.ccd.domain.service.common.AMSCaseAccessService;
 import uk.gov.hmcts.ccd.domain.service.common.CaseAccessService;
 
 class CreatorGetCaseOperationTest {
@@ -24,6 +26,10 @@ class CreatorGetCaseOperationTest {
 
     @Mock
     private CaseAccessService caseAccessService;
+    @Mock
+    private AMSCaseAccessService amsCaseAccessService;
+    @Mock
+    private AccessManagementProvider accessManagementProvider;
 
     private CreatorGetCaseOperation classUnderTest;
 
@@ -37,7 +43,7 @@ class CreatorGetCaseOperationTest {
     public void setupMocks() {
         MockitoAnnotations.initMocks(this);
 
-        classUnderTest = new CreatorGetCaseOperation(getCaseOperation, caseAccessService);
+        classUnderTest = new CreatorGetCaseOperation(getCaseOperation, caseAccessService, amsCaseAccessService, accessManagementProvider);
 
         when(getCaseOperation.execute(any(), any(), any())).thenReturn(Optional.of(caseDetails));
         when(getCaseOperation.execute(any())).thenReturn(Optional.of(caseDetails));

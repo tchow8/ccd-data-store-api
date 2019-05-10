@@ -103,6 +103,18 @@ public class ApplicationParams {
     @Value("${search.elastic.nodes.discovery.filter}")
     private String elasticsearchNodeDiscoveryFilter;
 
+    @Value("${accessmanagement.enabled}")
+    private boolean accessmanagementEnabled;
+
+    @Value("#{'${ams.authorised.casetypes}'.split(',')}")
+    private List<String> amsAuthorisedCaseTypes;
+
+    @Value("#{'${ams.classified.casetypes}'.split(',')}")
+    private List<String> amsClassifiedCaseTypes;
+
+    @Value("#{'${ams.useraccess.casetypes}'.split(',')}")
+    private List<String> amsUserAccessCaseTypes;
+
     public static String encode(final String stringToEncode) {
         try {
             return URLEncoder.encode(stringToEncode, "UTF-8");
@@ -285,5 +297,21 @@ public class ApplicationParams {
 
     public String getElasticsearchNodeDiscoveryFilter() {
         return elasticsearchNodeDiscoveryFilter;
+    }
+
+    public boolean getAccessmanagementEnabled() {
+        return accessmanagementEnabled;
+    }
+
+    public List<String> getAmsAuthorisedCaseTypes() {
+        return amsAuthorisedCaseTypes;
+    }
+
+    public List<String> getAmsClassifiedCaseTypes() {
+        return amsClassifiedCaseTypes;
+    }
+
+    public List<String> getAmsUserAccessCaseTypes() {
+        return amsUserAccessCaseTypes;
     }
 }

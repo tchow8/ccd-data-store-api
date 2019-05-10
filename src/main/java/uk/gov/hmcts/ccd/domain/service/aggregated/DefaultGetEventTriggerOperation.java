@@ -30,7 +30,7 @@ public class DefaultGetEventTriggerOperation implements GetEventTriggerOperation
     @Autowired
     public DefaultGetEventTriggerOperation(@Qualifier(CachedCaseDetailsRepository.QUALIFIER) final CaseDetailsRepository caseDetailsRepository,
                                            final UIDService uidService,
-                                           @Qualifier("authorised") final StartEventOperation startEventOperation,
+                                           @Qualifier("ams-authorised") final StartEventOperation startEventOperation,
                                            @Qualifier(CachedDraftGateway.QUALIFIER) final DraftGateway draftGateway,
                                            final CaseEventTriggerBuilder caseEventTriggerBuilder) {
         this.caseDetailsRepository = caseDetailsRepository;

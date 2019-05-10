@@ -1,9 +1,14 @@
 package uk.gov.hmcts.ccd.data.casedetails.search;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import uk.gov.hmcts.ccd.ApplicationParams;
+import uk.gov.hmcts.ccd.data.casedetails.CaseDetailsEntity;
+import uk.gov.hmcts.ccd.domain.service.security.AuthorisedCaseDefinitionDataService;
+import uk.gov.hmcts.ccd.infrastructure.user.UserAuthorisation;
+
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.List;
 import java.util.Map;
@@ -11,11 +16,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.CAN_READ;
-
-import uk.gov.hmcts.ccd.ApplicationParams;
-import uk.gov.hmcts.ccd.data.casedetails.CaseDetailsEntity;
-import uk.gov.hmcts.ccd.domain.service.security.AuthorisedCaseDefinitionDataService;
-import uk.gov.hmcts.ccd.infrastructure.user.UserAuthorisation;
 
 @Named
 @Singleton
@@ -25,7 +25,6 @@ public class SearchQueryFactoryOperation {
     private static final String OPERATION_EQ = " = ";
     private static final String OPERATION_LIKE = " LIKE ";
 
-    @PersistenceContext
     private final EntityManager entityManager;
 
     private static final String MAIN_QUERY = "SELECT * FROM case_data WHERE %s ORDER BY created_date %s";
@@ -39,7 +38,7 @@ public class SearchQueryFactoryOperation {
     private final AuthorisedCaseDefinitionDataService authorisedCaseDefinitionDataService;
 
     public SearchQueryFactoryOperation(CriterionFactory criterionFactory,
-                                       EntityManager entityManager,
+                                       @Qualifier("ccdEntityManagerFactory") EntityManager entityManager,
                                        ApplicationParams applicationParam,
                                        UserAuthorisation userAuthorisation,
                                        AuthorisedCaseDefinitionDataService authorisedCaseDefinitionDataService) {

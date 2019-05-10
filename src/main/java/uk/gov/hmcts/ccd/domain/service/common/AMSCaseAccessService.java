@@ -1,11 +1,7 @@
 package uk.gov.hmcts.ccd.domain.service.common;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.regex.Pattern;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -15,7 +11,18 @@ import uk.gov.hmcts.ccd.data.user.UserRepository;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseDetails;
 import uk.gov.hmcts.ccd.endpoint.exceptions.ValidationException;
 import uk.gov.hmcts.ccd.infrastructure.user.UserAuthorisation.AccessLevel;
+import uk.gov.hmcts.reform.amlib.AccessManagementService;
+import uk.gov.hmcts.reform.amlib.models.FilteredResourceEnvelope;
+import uk.gov.hmcts.reform.amlib.models.Resource;
 import uk.gov.hmcts.reform.auth.checker.spring.serviceanduser.ServiceAndUserDetails;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import static uk.gov.hmcts.reform.amlib.models.ResourceDefinition.builder;
 
 /**
  * Check access to a case for the current user.
@@ -28,18 +35,21 @@ import uk.gov.hmcts.reform.auth.checker.spring.serviceanduser.ServiceAndUserDeta
  * </ul>
  */
 @Service
-public class CaseAccessService {
-
+public class AMSCaseAccessService {
+    private static final ObjectMapper MAPPER = new ObjectMapper();
     private final UserRepository userRepository;
     private final CaseUserRepository caseUserRepository;
+    private final AccessManagementService accessManagementService;
 
     private static final Pattern RESTRICT_GRANTED_ROLES_PATTERN
         = Pattern.compile(".+-solicitor$|.+-panelmember$|^citizen(-.*)?$|^letter-holder$|^caseworker-.+-localAuthority$");
 
-    public CaseAccessService(@Qualifier(CachedUserRepository.QUALIFIER) UserRepository userRepository,
-                             CaseUserRepository caseUserRepository) {
+    public AMSCaseAccessService(@Qualifier(CachedUserRepository.QUALIFIER) final UserRepository userRepository,
+                                final CaseUserRepository caseUserRepository,
+                                final AccessManagementService accessManagementService) {
         this.userRepository = userRepository;
         this.caseUserRepository = caseUserRepository;
+        this.accessManagementService = accessManagementService;
     }
 
     public Boolean canUserAccess(CaseDetails caseDetails) {
@@ -77,6 +87,21 @@ public class CaseAccessService {
     }
 
     private Boolean accessGranted(CaseDetails caseDetails) {
+        // TODO: should get a populated envelope if earlier access was given or empty envelope if no explicit access
+        // (API missing that will case roles assigned to user)
+        FilteredResourceEnvelope resourceEnvelope = accessManagementService.filterResource(
+            userRepository.getUserId(),
+            getUserRoles(),
+            Resource.builder()
+                .id(caseDetails.getReferenceAsString())
+                .definition(builder()
+                    .serviceName(caseDetails.getJurisdiction())
+                    .resourceType("CASE")
+                    .resourceName(caseDetails.getCaseTypeId())
+                    .build())
+                .data(MAPPER.convertValue(caseDetails.getData(), JsonNode.class))
+                .build());
+
         final List<Long> grantedCases = caseUserRepository.findCasesUserIdHasAccessTo(userRepository.getUserId());
 
         if (null != grantedCases && grantedCases.contains(Long.valueOf(caseDetails.getId()))) {
