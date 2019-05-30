@@ -139,6 +139,7 @@ public class CallbackInvoker {
         validateSignificantItem(aboutToSubmitCallbackResponse, callbackResponse);
         callbackService.validateCallbackErrorsAndWarnings(callbackResponse, ignoreWarning);
         if (callbackResponse.getData() != null) {
+            final Optional<String> newCaseState = filterCaseState(callbackResponse.getData());
             validateAndSetData(caseType, caseDetails, callbackResponse.getData());
             if (callbackResponseHasCaseAndDataClassification(callbackResponse)) {
                 securityValidationService.setClassificationFromCallbackIfValid(callbackResponse,
@@ -147,7 +148,6 @@ public class CallbackInvoker {
                                                                                    caseType,
                                                                                    caseDetails));
             }
-            final Optional<String> newCaseState = filterCaseState(callbackResponse.getData());
             newCaseState.ifPresent(caseDetails::setState);
             aboutToSubmitCallbackResponse.setState(newCaseState);
             return aboutToSubmitCallbackResponse;
